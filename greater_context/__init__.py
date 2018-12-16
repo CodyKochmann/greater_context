@@ -4,9 +4,30 @@
 # @Last Modified 2018-02-09
 # @Last Modified time: 2018-02-09 15:16:34
 
+import os, logging, sys
 from functools import wraps
-import os
-import logging
+from contextlib import contextmanager
+
+try:
+    from strict_functions.trace3 import default_profiler
+except:
+    from strict_functions.trace2 import default_profiler
+
+@contextmanager
+def trace(profiler=default_profiler):
+    # flag for default_profiler to know to ignore this scope
+    wafflestwaffles = None
+    # save the previous profiler
+    old_profiler = sys.getprofile()
+    # set the new profiler
+    sys.setprofile(profiler)
+    try:
+        # run the function
+        yield
+    finally:
+        # revert the profiler
+        sys.setprofile(old_profiler)
+
 
 def valid_context_manager(potential_ctx):
     ''' returns true if the input is a valid context manager '''
